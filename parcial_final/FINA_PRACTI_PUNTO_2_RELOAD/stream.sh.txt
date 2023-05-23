@@ -1,0 +1,43 @@
+  #!/bin/bash
+
+echo "Instalación de las herramientas necesarias" 
+sudo yum update -y
+sudo yum install -y vim
+sudo yum install -y net-tools
+sudo yum -y install java-1.8.0-openjdk
+wget https://github.com/dularion/streama/releases/download/v1.1/streama-1.1.war
+echo "Creando las carpetas y archivos necesarios"
+mkdir /opt/streama
+mv streama-1.1.war /opt/streama/streama.war
+mkdir /opt/streama/media
+chmod 664 /opt/streama/media
+echo "creando y modificando archivo"
+sudo cat <<TEST> /etc/systemd/system/streama.service
+[Unit]
+Description=Streama Server
+After=syslog.target
+After=network.target
+
+[Service]
+User=root
+Type=simple
+ExecStart=/bin/java -jar /opt/streama/streama.war
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=Streama
+
+[Install]
+WantedBy=multi-user.target
+TEST
+echo "servicio streama"
+systemctl start streama
+systemctl enable streama
+systemctl status streama
+service firewalld stop
+
+echo "configurando el selinux para desactivarlo"
+cat <<TEST> /etc/selinux/config
+SELINUX=disabled
+SELINUXTYPE=targeted
+TEST

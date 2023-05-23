@@ -1,0 +1,17 @@
+# -- mode: ruby --
+# vi: set ft=ruby :
+Vagrant.configure("2") do |config|
+ config.vm.define :firewall do |firewall|
+ firewall.vm.box = "generic/centos8"
+ firewall.vm.provision "shell", path: "firewalld.sh.txt"
+ firewall.vm.network :public_network, ip: "192.168.43.12"
+ firewall.vm.network :private_network, ip: "192.168.50.2"
+ firewall.vm.hostname = "firewall"
+ end
+ config.vm.define :stream do |stream|
+ stream.vm.box = "generic/centos8"
+ stream.vm.provision "shell", path: "stream.sh.txt"
+ stream.vm.network :private_network, ip: "192.168.50.3"
+ stream.vm.hostname = "stream"
+ end
+end
